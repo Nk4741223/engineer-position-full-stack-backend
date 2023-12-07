@@ -4,11 +4,15 @@ const app = express();
 const cardRouter = require("./routes/cards");
 require("dotenv").config();
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
+
+//CROS対策
+const cors = require("cors");
+app.use(cors());
 
 //データベース接続
 mongoose
-  .connect(process.env.MONGO_URL)
+  .connect(process.env.MONGO_HEROKU_URL || process.env.MONGO_URL)
   .then(() => {
     console.log("DBと接続中・・・");
   })
