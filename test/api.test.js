@@ -50,3 +50,21 @@ describe("CRUD API Tests", () => {
     expect(res.body).eql("カードの削除に成功しました");
   });
 });
+
+describe("Search Test", () => {
+  it("should return cards matching the search query", async () => {
+    const testCard = new Card({
+      title: "Test Card",
+      content: "This is a test card for search functionality",
+    });
+    await testCard.save();
+
+    const res = await chai
+      .request(server)
+      .get("/api/cards/search/query")
+      .query({q: "Test Car"});
+
+    expect(res).to.have.status(200);
+    expect(res.body[0].title).eql("Test Card");
+  });
+});

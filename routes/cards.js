@@ -66,4 +66,20 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+//カードを検索する
+router.get("/search/query", async (req, res) => {
+  try {
+    const query = req.query.q;
+    const serchedCards = await Card.find({
+      $or: [
+        {title: {$regex: new RegExp(query, "i")}},
+        {content: {$regex: new RegExp(query, "i")}},
+      ],
+    });
+    return res.status(200).json(serchedCards);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+});
+
 module.exports = router;
