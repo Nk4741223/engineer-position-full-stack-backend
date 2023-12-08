@@ -68,3 +68,52 @@ describe("Search Test", () => {
     expect(res.body[0].title).eql("Test Card");
   });
 });
+
+describe("DB Validation Test", () => {
+  it("should defelult", async () => {
+    const card = new Card();
+    await card.save();
+    expect(card.title).to.equal("");
+    expect(card.content).to.equal("");
+  });
+
+  it("should length ok", async () => {
+    const card = {
+      title: "This is a title",
+      content: "This is the content of the card.",
+    };
+
+    const res = await chai.request(server).post("/api/cards").send(card);
+    expect(res).to.have.status(200);
+    expect(res.body.title).to.have.length.at.most(20);
+    expect(res.body.content).to.have.length.at.most(200);
+  });
+
+  it("should length miss", async () => {
+    const card = {
+      title: "This is a title This is a title",
+      content: "This is the content of the card.",
+    };
+
+    const res = await chai.request(server).post("/api/cards").send(card);
+    expect(res).to.have.status(500);
+  });
+
+  it("should trim", async () => {
+    const card = new Card({
+      title: " Test Card ",
+      content: "Test Description ",
+    });
+    await card.save();
+
+    expect(card.title).to.equal("Test Card");
+    expect(card.content).to.equal("Test Description");
+  });
+
+  it("should timestamp", async () => {
+    const card = new Card();
+    await card.save();
+
+    expect(card.updatedAt).to.exist;
+  });
+});
