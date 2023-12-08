@@ -5,13 +5,13 @@ const cardSchema = new mongoose.Schema(
     title: {
       type: String,
       default: "",
-      maxlength: 10,
+      maxlength: 20,
       trim: true,
     },
     content: {
       type: String,
       default: "",
-      maxlength: 100,
+      maxlength: 200,
       trim: true,
     },
   },
