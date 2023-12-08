@@ -1,11 +1,15 @@
 const router = require("express").Router();
-const {find} = require("../models/Card");
 const Card = require("../models/Card");
+
+const NodeCache = require("node-cache");
+const cache = new NodeCache();
 
 //カードを作成する
 router.post("/", async (req, res) => {
   try {
     const newCard = await Card.create(req.body);
+    cache.del("/");
+
     return res.status(200).json(newCard);
   } catch (err) {
     return res.status(500).json(err);
@@ -15,7 +19,14 @@ router.post("/", async (req, res) => {
 //カードを全て取得する
 router.get("/", async (req, res) => {
   try {
+    const cachedCards = cache.get("/");
+    if (cachedCards) {
+      return res.status(200).json(cachedCards);
+    }
+
     const allCards = await Card.find({});
+    cache.set("/", allCards, 300);
+
     return res.status(200).json(allCards);
   } catch (err) {
     return res.status(500).json(err);
@@ -25,7 +36,14 @@ router.get("/", async (req, res) => {
 //カードを１つ取得する
 router.get("/:id", async (req, res) => {
   try {
+    const cachedCard = cache.get(req.params.id);
+    if (cachedCard) {
+      return res.status(200).json(cachedCard);
+    }
+
     const card = await Card.findById(req.params.id);
+    cache.set(req.params.id, card, 300);
+
     return res.status(200).json(card);
   } catch (err) {
     return res.status(500).json(err);
@@ -47,6 +65,9 @@ router.put("/:id", async (req, res) => {
     if (!upatedCard) {
       return res.status(404).json(`_id:${req.params.id}は存在しません`);
     }
+    cache.del("/");
+    cache.del(req.params.id);
+
     return res.status(200).json(upatedCard);
   } catch (err) {
     return res.status(500).json(err);
@@ -60,6 +81,9 @@ router.delete("/:id", async (req, res) => {
     if (!deleteCard) {
       return res.status(404).json(`_id:${req.params.id}は存在しません`);
     }
+    cache.del("/");
+    cache.del(req.params.id);
+
     return res.status(200).json("カードの削除に成功しました");
   } catch (err) {
     return res.status(500).json(err);
@@ -76,6 +100,8 @@ router.get("/search/query", async (req, res) => {
         {content: {$regex: new RegExp(query, "i")}},
       ],
     });
+    cache.del("/");
+
     return res.status(200).json(serchedCards);
   } catch (err) {
     return res.status(500).json(err);
