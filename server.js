@@ -1,5 +1,5 @@
+const mongoose = require("mongoose");
 const express = require("express");
-const {default: mongoose} = require("mongoose");
 const app = express();
 const cardRouter = require("./routes/cards");
 require("dotenv").config();
@@ -26,7 +26,11 @@ app.use("/api/cards", cardRouter);
 
 //表示を確認
 app.get("/", (req, res) => {
-  res.status(200).json("home express");
+  try {
+    res.status(200).json("home express");
+  } catch (err) {
+    return res.status(500).json(err);
+  }
 });
 
 const server = app.listen(PORT, () => {

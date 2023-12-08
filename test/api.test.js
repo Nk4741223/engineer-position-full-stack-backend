@@ -70,7 +70,7 @@ describe("Search Test", () => {
 });
 
 describe("DB Validation Test", () => {
-  it("should defelult", async () => {
+  it("should default:empty", async () => {
     const card = new Card();
     await card.save();
     expect(card.title).to.equal("");

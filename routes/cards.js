@@ -42,6 +42,9 @@ router.get("/:id", async (req, res) => {
     }
 
     const card = await Card.findById(req.params.id);
+    if (!card) {
+      return res.status(404).json(`_id:${req.params.id}は存在しません`);
+    }
     cache.set(req.params.id, card, 300);
 
     return res.status(200).json(card);
